@@ -1,4 +1,4 @@
-# stats220
+# STATS220
 
 This is my repo for STATS 220. 
 
