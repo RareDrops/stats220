@@ -1,0 +1,108 @@
+---
+title: My dynamic report
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+```
+
+```{css}
+@import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+html {
+  display: flex;
+  justify-content: center;
+}
+
+body {
+  font-family: "Balsamiq Sans", sans-serif;
+  background-color: #f5f0e7; /* cream color */
+  font-size: 24px;
+  display: inline-block;
+}
+
+h3 {
+  color: teal;
+}
+
+h2 {
+  color: orange;
+}
+
+div.section.level2 {
+  border: 2px dashed oklch(0.648 0.2 131.684);
+  margin-bottom: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+div.section.level3 {
+  border: 2px dashed blue;
+  margin-bottom: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: inline-block;
+}
+```
+
+## Sleep Duration and Quality Tracker
+
+This website dynamically creates a bar chart and summaries for the data collected from a Google form sheet!
+
+```{r}
+library(tidyverse)
+
+logged_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRKI8naOEo40slXbBPQhcZ7Iq4daGwm8NXxqzj61ItZ0-eIDDbbBVgS5qunhTLr0_w_m2GOs4yWTSUV/pub?output=csv")
+
+
+latest_data <- logged_data %>% rename(date_of_sleep = 2, 
+                                      sleep_duration = 3, 
+                                      sleep_quality = 4)
+
+sleep_duration_bar_chart <- latest_data %>%
+                            ggplot() +
+                            geom_bar(aes(x = sleep_duration, fill=sleep_quality)) +
+                            theme(plot.background = element_rect(fill="#f5f0e7"))
+
+sleep_quality_bar_chart <- latest_data %>%
+                           ggplot() +
+                           geom_bar(aes(x = sleep_quality)) +
+                           theme(plot.background = element_rect(fill="#f5f0e7"))
+            
+
+mean_sleep_duration <- latest_data$sleep_duration %>% mean()
+highest_sleep_duration <- latest_data$sleep_duration %>% max()
+lowest_sleep_duration <- latest_data$sleep_duration %>% min()
+
+bad_count <- length(latest_data$sleep_quality[latest_data$sleep_quality == "Bad"])
+fair_count <- length(latest_data$sleep_quality[latest_data$sleep_quality == "Fair"])
+good_count <- length(latest_data$sleep_quality[latest_data$sleep_quality == "Good"])
+```
+
+## Sleep Duration Data Chart
+
+```{r}
+sleep_duration_bar_chart
+```
+
+### Sleep Duration Metrics
+Mean Sleep Duration: `r mean_sleep_duration`
+
+Longest Sleep Duration: `r highest_sleep_duration`
+
+Shortest Sleep Duration: `r lowest_sleep_duration`
+
+## Sleep Quality Data Chart
+
+```{r}
+sleep_quality_bar_chart
+```
+
+### Sleep Quality Metrics
+
+Bad Sleep Count: `r bad_count`
+
+Fair Sleep Count: `r fair_count`
+
+Good Sleep Count: `r good_count`
