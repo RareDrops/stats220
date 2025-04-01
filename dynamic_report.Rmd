@@ -78,6 +78,7 @@ lowest_sleep_duration <- latest_data$sleep_duration %>% min()
 bad_count <- length(latest_data$sleep_quality[latest_data$sleep_quality == "Bad"])
 fair_count <- length(latest_data$sleep_quality[latest_data$sleep_quality == "Fair"])
 good_count <- length(latest_data$sleep_quality[latest_data$sleep_quality == "Good"])
+total_sleep_count <- length(latest_data$sleep_quality)
 ```
 
 ## Sleep Duration Data Chart
@@ -101,8 +102,34 @@ sleep_quality_bar_chart
 
 ### Sleep Quality Metrics
 
-Bad Sleep Count: `r bad_count`
+Bad Sleep Count: `r bad_count` / `r total_sleep_count`
 
-Fair Sleep Count: `r fair_count`
+Fair Sleep Count: `r fair_count` / `r total_sleep_count`
 
-Good Sleep Count: `r good_count`
+Good Sleep Count: `r good_count` / `r total_sleep_count`
+
+
+## Sleep Duration and Sleep Quality Correlation
+
+```{r}
+summary_data <- latest_data %>%
+  group_by(sleep_quality) %>%
+  summarize(
+    mean = mean(sleep_duration, na.rm = TRUE), # get the mean(displayed as a point)
+    lower_quartile = quantile(sleep_duration, 0.25, na.rm = TRUE), # get the bottom 25% of the data
+    upper_quartile = quantile(sleep_duration, 0.75, na.rm = TRUE) # get the top 25% of the data
+  )
+
+
+ggplot(summary_data, aes(x = mean, y = sleep_quality)) +
+  geom_point(color = "blue", size = 3) +  # mean points
+  geom_errorbarh(aes(xmin = lower_quartile, xmax = upper_quartile), height = 0.2, color = "red") +  # error bars with quantile
+  labs(
+    title = "Sleep Duration Summary by Sleep Quality",
+    x = "Sleep Duration (hours)",
+    y = "Sleep Quality"
+  ) +
+  theme_minimal()
+```
+
+Trend: Higher duration of sleep tend to result in a higher quality of sleep.
